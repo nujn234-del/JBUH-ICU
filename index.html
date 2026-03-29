@@ -1,524 +1,579 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전북대학교병원 중환자실 입원안내</title>
+    <title>EICU 간호정보 사전조사 (캡처용)</title>
     <style>
-        /* 기본 스타일 초기화 */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Pretendard', sans-serif;
-            line-height: 1.6;
+        /* 기본 스타일 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: #f4f7f6; 
             color: #333;
-            background-color: #f8f9fa;
+            word-break: keep-all; 
         }
 
-        /* 헤더 디자인 (기존 유지) */
-        header {
-            background: linear-gradient(90deg, #0055a5 0%, #ffffff 30%, #ffffff 70%, #0055a5 100%);
-            color: #003366;
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid rgba(0, 85, 165, 0.1);
-        }
-
-        .logo-title-container {
+        /* 헤더 (3분할 레이아웃으로 양쪽 버튼 배치) */
+        header { 
+            background: linear-gradient(90deg, #e74c3c 0%, #ffffff 50%, #e74c3c 100%); 
+            padding: 15px 15px; 
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        header .header-logo {
-            width: 220px;
-            height: auto;
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            text-align: left;
-            line-height: 1.2;
-            text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.8);
-        }
-
-        /* 메인 레이아웃: 왼쪽 메뉴 + 오른쪽 본문 */
-        .main-wrapper {
-            display: flex;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        /* 왼쪽 사이드바 (책갈피 메뉴) */
-        .sidebar {
-            width: 280px;
-            height: calc(100vh - 100px);
-            /* 헤더 높이 제외 */
+            border-bottom: 1px solid #ddd;
             position: sticky;
-            top: 20px;
-            padding: 20px;
-            overflow-y: auto;
+            top: 0;
+            z-index: 100;
         }
+        header h1 { 
+            color: #c0392b; 
+            font-size: 1.15rem; 
+            margin: 0; 
+            text-align: center;
+            flex: 1; 
+        }
+        
+        .header-btn {
+            background-color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .nav-btn { color: #c0392b; border: 1px solid #e74c3c; }
+        .exit-btn-top { color: #555; border: 1px solid #999; }
 
-        .sidebar-menu {
-            background: white;
-            border-radius: 12px;
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
+
+        .security-notice {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
             padding: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            list-style: none;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            color: #856404;
+            line-height: 1.6;
         }
 
-        .sidebar-menu li {
+        /* 질문 단계 공통 스타일 */
+        .step-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: none; 
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .step-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #0055a5;
+            margin-bottom: 15px;
+        }
+
+        /* 입력 폼 스타일 */
+        input[type="text"], input[type="number"], input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            outline: none;
+        }
+        input:focus { border-color: #0055a5; }
+
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-group input { flex: 1; margin-bottom: 0; font-size: 10px;}
+
+        /* 체크박스/라디오 버튼 스타일 */
+        .check-group { margin-bottom: 10px; }
+        .check-group label {
+            display: block;
+            padding: 12px 10px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .check-group input[type="checkbox"], .check-group input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        /* 🔥 좌우 분할 물품 체크박스 스타일 */
+        .item-row {
+            display: flex;
+            gap: 8px;
             margin-bottom: 8px;
         }
-
-        .sidebar-menu a {
-            text-decoration: none;
-            color: #555;
-            font-size: 0.95rem;
-            display: block;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-
-        .sidebar-menu a:hover {
-            background-color: #f0f7ff;
-            color: #0055a5;
-            border-left: 3px solid #0055a5;
-        }
-
-        /* 오른쪽 상세 내용 */
-        .content {
-            flex: 1;
-            padding: 20px;
-        }
-
-        .notice-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            scroll-margin-top: 20px;
-            /* 이동 시 위쪽 여백 */
-        }
-
-        section h2 {
-            color: #0055a5;
-            font-size: 1.4rem;
-            margin-bottom: 15px;
+        .item-row label {
+            margin-bottom: 0; /* 기존 마진 덮어쓰기 */
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+        }
+        .item-main {
+            flex: 1;
+        }
+        .item-sub {
+            flex: 1;
+            background-color: #fff0f0 !important; /* 붉은색 계열로 구별 */
+            border-color: #ffcccc !important;
+            color: #c0392b;
+            font-weight: bold;
         }
 
-        .detail-text {
-            color: #444;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
-
-        /* 세부안내 버튼 스타일 */
-        .sub-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 24px;
+        /* 확인(다음) 버튼 */
+        .next-btn {
+            width: 100%;
+            padding: 15px;
             background-color: #0055a5;
             color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 8px;
+            font-size: 1.1rem;
             font-weight: bold;
-            transition: background 0.2s;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .next-btn:active { background-color: #003d7a; }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
         }
 
-        .sub-btn:hover {
-            background-color: #003d7a;
+        /* 간호사용 최종 캡처 결과 화면 */
+        #result-screen {
+            display: none;
+            background: white;
+            padding: 20px;
+            border: 3px solid #c0392b;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-
-        html {
-            scroll-behavior: smooth;
+        #result-screen h2 { text-align: center; color: #c0392b; margin-bottom: 20px; font-size: 1.3rem; }
+        .result-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
         }
-
-        /* 푸터 */
-        footer {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #888;
-            font-size: 0.8rem;
-            background: #eee;
-            margin-top: 50px;
+        .result-item span.label {
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
         }
-
-        /* 모바일 대응 (사이드바 숨기고 상단 고정 등으로 변경 가능하나 여기서는 단순 세로 배치) */
-        @media (max-width: 768px) {
-            header .header-logo {
-                width: 150px;
-            }
-
-            header h1 {
-                font-size: 1.2rem;
-            }
-
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                top: 0;
-                padding: 10px;
-            }
-
-            .sidebar-menu {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 5px;
-                font-size: 0.8rem;
-            }
-
-            .sidebar-menu a {
-        padding: 12px 8px;
-        text-align: center;
-        border-left: none;
-        background: #eee;
-        
-        /* 크기 통일을 위한 핵심 코드 */
-        display: flex;          /* 플렉스 박스 적용 */
-        align-items: center;    /* 세로 중앙 정렬 */
-        justify-content: center; /* 가로 중앙 정렬 */
-        min-height: 55px;       /* 모든 버튼의 최소 높이를 통일 */
-        height: 100%;           /* 그리드 칸에 가득 차도록 설정 */
-        word-break: keep-all;   /* 단어 단위로 줄바꿈하여 가독성 향상 */
-        line-height: 1.3;       /* 줄 간격 조절 */
-    }
-    
-    /* QA 봇 버튼은 2칸을 다 차지하도록 설정 (선택 사항) */
-    .sidebar-menu li:first-child {
-        grid-column: span 2;
-    }
-
-            .content {
-                padding: 10px;
-            }
+        .result-item span.val {
+            font-weight: bold;
+            color: #111;
+            font-size: 1.15rem;
+            word-break: keep-all;
+            white-space: pre-line;
         }
     </style>
 </head>
-
 <body>
 
-    <header>
-        <div class="logo-title-container">
-            <img src="./PICTURE/LOGO.png" alt="전북대학교병원 로고" class="header-logo">
-            <h1>전북대학교병원<br>중환자실 입원생활 안내</h1>
-        </div>
-    </header>
+<header>
+    <button class="header-btn exit-btn-top" onclick="generateResult()">종료하기</button>
+    <h1>📋 사전 간호정보 조사</h1>
+    <a href="main.html" class="header-btn nav-btn">입원안내</a>
+</header>
 
-    <div class="main-wrapper">
-        <nav class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="#admission">🏢 중환자실 입실안내</a></li>
-                <li><a href="#fall-safety">⚠️ 낙상예방 및 안전수칙</a></li>
-                <li><a href="#fire-safety">🔥 화재 시 대처방법</a></li>
-                <li><a href="#general-rules">📢 기타 주의사항</a></li>
-                <li><a href="#parking-reg">🚗 주차 차량등록 안내</a></li>
-                <li><a href="#documents">📄 증명서 발급 및 <br> 진료정보 보호</a></li>
-                <li><a href="#amenities">🏪 편의시설 안내</a></li>
-                <li><a href="#care">📋간병/이송 안내</a></li>
-                <li><a href="#visiting-rules">🤝 면회 시 준수사항</a></li>
-                <li><a href="#rights-duties">⚖️ 환자의 권리 및 의무</a></li>
-                <li><a href="#complaints">✉️ 불만 및 고충처리</a></li>
-            </ul>
-        </nav>
-
-        <main class="content">
-            <div class="notice-box" style="font-size: 17px;">
-                <strong>현재 감염병 예방을 위해 중환자실 면회 시간이 제한 운영되고 있습니다.<br>
-                    내원 시 마스크를 꼭 착용해주시기 바랍니다.</strong>
-            </div>
-
-            <section id="admission">
-                <h2><span>🏢</span> 중환자실 입실안내</h2>
-                <div class="detail-text">
-                    각 진료과의 의사가 중환자실에 입실할 필요가 있다고 판단하였을 경우 입실합니다.
-                    <br> 입실 전 "중환자실 입실 동의서"를 작성해야 합니다.
-                </div>
-                <a href="#" class="sub-btn">중환자실별 세부안내</a>
-            </section>
-
-            <section id="fall-safety">
-                <h2><span>⚠️</span> 낙상예방 및 안전수칙 안내</h2>
-                <div class="detail-text">
-                    <span style="font-weight: bold; color: #fd2828;">입원생활 중에 침대에서 떨어지는 일이 없도록 사고 예방을 위해 다음 사항을 지켜주시기
-                        바랍니다. </span>
-                    <br>1. 침상 난간은 항상 올려진 상태로 있어야 합니다.
-                    <br>2. 침대바퀴는 항상 고정되어 있어야 합니다.
-            </section>
-
-            <section id="fire-safety">
-                <h2><span>🔥</span> 화재 시 대처방법</h2>
-                <div class="detail-text">
-                    1. 화재 발견 시 "불이야"라고 외친 후, 가까이 있는 의료진에게 화재 사실을 알립니다.
-                    <br>2. 화재 경보 시 의료진 지시에 따릅니다.
-                    <br>3. 비상 대피 경로는 병실과 복도에 설치된 안내판을 참고합니다.
-                    <br>4. 유도요원의 안내에 따라 화재 발생 반대 방향으로 침착하고 질서있게 대피합니다.
-                    <br>5. 승강기 이용을 금하고(정전사고, 연기확산 우려) 비상계단을 이용하여 대피합니다.
-                    <br>6. 연기 확산 시 물수건으로 코를 막고 낮은 자세로 유도등을 따라서 대피합니다.
-                </div>
-            </section>
-
-            <section id="general-rules">
-                <h2><span>📢</span> 기타 주의사항</h2>
-                <div class="detail-text">
-                    <span style="font-weight: bold; color: #fd2828;">도난주의 </span>
-                    <br> 귀중품이나 현금은 병실 보관을 금합니다.
-                    <br><span style="font-weight: bold; color: #fd2828;">휴대전화 </span>
-                    <br> 전자파가 기계의 오작동에 영향을 주므로 중환자실내에서 사용을 금하여 주시기 바랍니다.
-                    <br><span style="font-weight: bold; color: #fd2828;">금연 </span>
-                    <br> 병원 전체가 금연구역입니다.
-                    <br> 흡연구역 : 장례식장 후면 휴게공간, 노인보건의료센터 우측 흡연부스
-                    <br><span style="font-weight: bold; color: #fd2828;">진단서 </span>
-                    <br> 퇴원 2~3일 전 담당의 및 간호사와 상의해 주십시오
-                    <br><span style="font-weight: bold; color: #fd2828;">진료비 </span>
-                    <br> 진료비 확인 방법 : 본관 1층 원무과 방문 또는 전화 (T.063-250-1047)
-                </div>
-            </section>
-
-            <section id="parking-reg">
-                <h2><span>🚗</span> 주차 차량등록 안내</h2>
-                <div class="detail-text">
-                    ·차량등록 : 등록번호(환자번호)당 차량 2대 등록가능
-                    <br>·등록차량(선출차) : 1대/1일 할인 적용
-                    <br> <span style="margin-left: 20px;">-입원 · 퇴원 · 수술 당일 무료</span>
-                    <br> <span style="margin-left: 20px;">-야간(오후 7시 ~ 익일 오전 7시) 무료</span>
-                    <br>·차량 등록 방법
-                    <br> <span style="margin-left: 20px;">-사전 무인 정산기 : 차량등록 및 주차요금 사전 정산</span>
-                    <br> (위치 : 각 건물별 1층(원무)수납 인근)
-                    <br> <span style="margin-left: 20px;">-병원 어플 : 전북대학교병원 앱 실행(등록기준 30분 후 적용)</span>
-                    <br> → 로그인 → 내정보관리 → 기타정보 → 차량번호관리
-                </div>
-            </section>
-
-            <section id="documents">
-                <h2>
-    <span>📄</span> 증명서 발급 및 진료정보 보호</h2>
-                <div class="detail-text">
-                    <br> · 사본 현장발급은 평일(월-금) 08:30 ~ 17:30에만 가능합니다.(주말·공휴일 현장발급 불가/온라인 발급 가능)
-                    <br>
-                    <br><span style="font-weight: bold; color: #00b118;"> 신청자가 환자 본인인 경우 </span>
-                    <br> · 환자본인 신분증
-                    <br> · 사본발급 신청서
-                    <br> - 입원환자인 경우 : 환자 본인이 환자복을 입고 인식 팔찌를 소지한 경우 신분증 대신 인식팔찌로 대체 가능함
-                    <br><span style="font-weight: bold; margin-left: 10px;">(미성년자 제외)</span>
-                    <br>
-                    <br><span style="font-weight: bold; color: #00b118;"> 신청자가 환자 및 배우자의 직계존, 비속인 경우 </span>
-                    <br> · 사본발급 신청서
-                    <br> · 환자본인 신분증(만 17세 미만 제외)
-                    <br> · 신청자 신분증
-                    <br> · 환자 자필서명 사본발급동의서(만 14세 미만 미성년자 제외)
-                    <br> · 친족관계 증명서(가족관계증명서 또는 주민등록등본)
-                    <br>
-                    <br><span style="font-weight: bold; color: #00b118;"> 신청자가 환자 대리인일 경우 </span>
-                    <br> · 사본발급 신청서
-                    <br> · 환자 본인과 신청자 신분증
-                    <br> · 환자 자필서명 동의서와 위임장
-                    <br> <span style="font-weight: bold;">· 만 14세 미만인 경우 법정대리인(확인 가능한 서류 첨부)</span>
-                    <br>
-                    <br><span style="font-weight: bold; color: #00b118;"> 진료정보 비밀보호 신청(본인 외 모든정보 비공개) </span>
-                    <br> · 환자 신분증 지참 후 본관 지하 1층 의무기록실로 방문해 주십시오.
-                    <br>
-                    <br><span style="font-weight: bold; color: #00b118;"> 의무기록 사본 온라인 발급 </span>
-                    <br> · 병원 홈페이지 또는 아래 QR을 이용하여 신청 및 발급할 수 있습니다.
-                    <br> <span style="font-weight: bold;">· 친족 외 대리인, 정신건강의학과, 현재 입원중인 환자, 영상검사 CD/DVD, 슬라이드(조직검사/세포검사) 제외</span>
-                    <img src="./PICTURE/DOCSQR.png" alt="사본발급 QR">
-                    <br>
-                    <br><span style="font-weight: bold; color: #00b118;"> ※기타 문의사항 </span>
-                    <br> · 본관 1층 의무기록사본 발급실<br>(T.063-250-2400)
-                    <br> · 영상 관리실(T. 063-250-2140)
-                </div>
-            </section>
-
-            <section id="amenities">
-                <h2><span>🏪</span> 편의시설 안내</h2>
-                <div class="detail-text">
-                    <br><span style="font-weight: bold; color: #534000;"> 병동 </span>
-                    <br> 화장실, 샤워실, 오물처리실, 배선실, 전자레인지, 정수기
-                    <br><span style="font-weight: bold; color: #534000;"> 식당 </span>
-                    <br> 본관 지하 1층
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 푸드코트 </span>
-                    <br><span style="margin-left: 15px;">평일, 주말, 공휴일 07:00 ~ 19:00</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 베이커리 </span>
-                    <br><span style="margin-left: 15px;">평일, 주말, 공휴일 07:00 ~ 19:00</span>
-                    <br><span style="font-size: 12px; margin-left: 15px;">*업체 사정에 따라 시간이 변경될 수 있습니다.</span>
-                    <br><span style="font-weight: bold; color: #534000;"> 편의점 및 기타 </span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 편의점 </span>
-                    <br><span>본관 지하 1층, 호흡기전문질환센터 1층 통로(세븐일레븐)</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 제과점 </span>
-                    <br><span>호흡기전문질환센터 1층(풍년제과), 본관 지하 1층(브레댄코)</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 커피점 </span>
-                    <br><span>본관 1층(스타벅스), 본관 지하 1층(파스구찌), 호흡기전문질환센터 1층(이디야 커피)</span>
-                    <br><span>치과병원 1층, 노인보건의료센터 1층, 암센터 1층(블루포트)</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 죽판매점 </span>
-                    <span style="margin-left: 15px;">본관 지하 1층</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 샐러드 판매점 </span>
-                    <br><span style="margin-left: 15px;">본관 지하 1층 입점예정</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 세탁실 </span>
-                    <span style="margin-left: 15px;">응급센터 2층</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 작은 도서관 </span>
-                    <span style="margin-left: 15px;">본관 지하 1층</span>
-                    <br><span style="font-weight: bold; color: #534000;"> 금융시설 </span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 전북은행 </span>
-                    <span style="margin-left: 15px;">본관 지하 1층</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 새마을금고 </span>
-                    <span style="margin-left: 15px;">본관 지하 1층</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 현금지급기 </span>
-                    <span style="margin-left: 15px;">본관 지하 1층</span>
-                    <br><span style="font-weight: bold; color: #534000;"> 종교활동 안내</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 기독교 </span>
-                    <br><span style="margin-left: 15px;">본관 지하 1층(T.063-250-1477)</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 천주교 </span>
-                    <br><span style="margin-left: 15px;">본관 지하 1층(T.063-250-1336)</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 불교 </span>
-                    <br><span style="margin-left: 15px;">본관 지하 1층(T.063-250-2083)</span>
-                    <br><span style="font-weight: bold; color: #534000;"> 의료용품 구입</span>
-                    <br> ·본관 지하1층 의료용품점<br>(T.063-250-1094)
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 평일 </span>
-                    <span style="margin-left: 15px;">08:00 ~ 18:00</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 토요일 </span>
-                    <span style="margin-left: 15px;">휴무</span>
-                    <br><span style="font-weight: bold; color: #e6b001; margin-left: 15px;"> 일요일 </span>
-                    <span style="margin-left: 15px;">12:00 ~ 17:00</span>
-                    <br><span style="font-weight: bold; color: #534000;"> FAX 수신처 </span>
-                    <br> ·본관 1층 안내데스크 : 063-250-1777
-                    <br> ·암센터 1층 수납 : 063-250-1953
-                    <br> ·응급센터 1층 수납 : 063-250-1065
-                    <br> ·어린이병원 1층 수납 : 063-259-3110
-                    <br> ·호흡기전문질환센터 1층 수납: 063-259-3127
-                    <br> ·응급센터-노인보건센터 2층 연결 통로(복도) 안내데스크 : 063-259-3168
-                </div>
-            </section>
-
-            <section id="care">
-                <h2><span>📋</span> 간병/이송 안내</h2>
-                <div class="detail-text">
-                    <span style="font-weight: bold; color: #bc24f8;"> 응급환자 이송 위탁업체 </span>
-                    <br> T.063-250-2136
-                    <br><span style="font-weight: bold; color: #bc24f8;"> 간병업체안내 </span>
-                    <br> <span style="font-weight: bold; color: rgb(194, 0, 0);">·위 단체는 본 병원과 협약이 이루어진 것이 아니므로 단체 선정은 환자나 보호자께서 하시기
-                        바랍니다.</span>
-                    <br> 전북대학교 평생교육원 : 063-232-2355
-                    <br> 간병매칭 플랫폼 헬퍼(네이버 검색) : 010-8034-4887 / <a href="http://www.thehelper.io" target="_blank"> 홈페이지</a>
-                    <br> 두손 센터 : 063-254-2828
-                    <br> 미소간병회 : 063-229-7319
-                    <br> 엘리트 간병회 : 010-2442-2419
-                    <br> 예다간병인회 : 063-232-0604
-                    <br> 전주작은사랑 간병센터 : 063-282-9770
-                    <br> 행복한 돌봄센터 : 063-231-0424
-                    <br> 환우리간병협회 : 063-222-8490
-                    <br> 제일 착한 간병협회 : 010-3681-1915
-                    <br> 모성간병인회 : 010-5607-8256
-                    <br> 브리핑케어 : 063-285-5885
-                    <br> 정성간병인회 : 010-5160-7301
-                    
-                </div>
-            </section>
-
-            <section id="visiting-rules">
-                <h2><span>🤝</span> 면회 시 준수사항</h2>
-                <div class="detail-text">
-                    ·대상자 : 직계존비속 또는 법정대리인 1-2인 이내
-                    <br> ·면회 방법 : 개인보호구(일회용 가운, 장갑, 마스크)착용, 체온 측정, 출입관리대장 작성
-                    <br> <span style="font-weight: bold;">·환자의 안정과 감염예방을 위해 면회 지침을 준수해주시기 바랍니다.</span>
-                    <br> ·출입 전후 반드시 손위생을 시행합니다.
-                    <br> ·감염환자 면회 시에는 간호사의 안내에 따릅니다.
-                    <br> ·꽃, 화분, 애완동물, 외부 음식물 반입을 금지합니다.
-                    <br> <span style="font-weight: bold;">·아래의 경우에는 면회가 제한됩니다.</span>
-                    <br><span>가) 감염성 질환을 전파시킬 우려가 있는 사람.</span>
-                    <br><span>- 감기나 독감 등 호흡기 질환자</span>
-                    <br><span>- 설사, 복통, 구토 등 급성 장관계 염증이 있는 사람</span>
-                    <br><span>- 피부에 병변이 있는 사람</span>
-                    <br><span>- 최근에 감염성 질환자와 접촉한 경력이 있는 사람</span>
-                    <br><span>나) 스스로 주의 또는 보호가 필요한 사람</span>
-                    <br><span>- 임산부, 노약자, 만12세 미만 아동</span>
-                    <br><span>- 지속적 치료(항암치료 등)로 면역 기능이 떨어진 사람</span>
-                </div>
-            </section>
-
-            <section id="rights-duties">
-                <h2><span>⚖️</span> 환자의 권리 및 의무</h2>
-                <div class="detail-text">
-                    <span style="font-weight: bold; color: #e95858;"> 환자의 권리 </span>
-                    <br> <span style="font-weight: bold;">1. 진료 받을 권리</span>
-                    <br><span>·환자는 자신의 건강보호와 증진을 위하여 적절한 보건의료서비스를 받을 권리가 있고, 성별·나이·종교·신분
-                        및</span>
-                    <span>경제적 사정 등을 이유로 건강에 관한 권리를 침해받지 아니하며, 의료인은 정당한 사유없이 진료를 거부할 수 없다.
-                    </span>
-                    <br> <span style="font-weight: bold;">2. 알 권리 및 자기결정권</span>
-                    <br><span>·환자는 담당의사·간호사 등으로부터 질병상태, 치료방법, 의학적 연구 대상 여부, 장기이식 여부, 부작용 등 예상
-                        결과 및</span>
-                    <br><span>진료 비용에 관하여 충분한 설명을 듣고, 결정할 관리가 있다.</span>
-                    <br> <span style="font-weight: bold;">3. 비밀을 보호받을 권리</span>
-                    <br><span >·환자는 진료와 관련된 신체상·건강상의 비밀과 사생활의 비밀을 침해받지 아니하며, 의료인과 의료기관은 환자의
-                        동의를 </span>
-                    <br><span>받거나 범죄 수사 등 법률에서 정한 경우 외에는 비밀을 누설·발표 할 수 없다.</span>
-                    <br> <span style="font-weight: bold;">4. 상담 및 조정을 신청할 권리</span>
-                    <br><span>·환자는 의료 서비스 관련 분쟁이 발생한 경우, 상담 및 조정을 신청할 수 있는 권리가 있다. </span>
-                    <br> <span style="font-weight: bold;">5. 안전한 의료환경에서 의료서비스를 제공 받을 권리</span>
-                    <br><span>·환자는 환자의 진료정보가 보호되고 환자안전이 유지되는 의료 기관에서 의료서비스를 제공받을 권리가
-                        있다.</span>
-                    <br>
-                    <br><span style="font-weight: bold; color: #e95858;"> 환자의 의무 </span>
-                    <br> <span style="font-weight: bold;">1. 의료인에 대한 신뢰·존중 의무</span>
-                    <br><span>·환자는 자신의건강 관련 정보를 의료인에게 정확히 알리고, 의료인의 치료계획을 신뢰하고 존중하여야 할 의무가
-                        있다.</span>
-                    <br> <span style="font-weight: bold;">2. 부정한 방법으로 진료를 받지 않을 의무</span>
-                    <br><span>·환자는 진료 전에 본인의 신분을 밝혀야 하고, 다른 사람의 명의로 진료를 받는 등 거짓이나 부정한 방법으로
-                        진료를 받지</span>
-                    <br><span>아니할 의무가 있다.</span>
-                </div>
-            </section>
-
-            <section id="complaints">
-                <h2><span>✉️</span> 불만 및 고충처리</h2>
-                <div class="detail-text">
-                    병원 이용시 불편한 점이나 개선사항이 있을 때 이용바랍니다.
-                    <br><span style="font-weight: bold; color: #e6b001;"> 전화 </span> T.063-250-2680, 2681
-                    <br><span style="font-weight: bold; color: #e6b001;"> 방문 </span> 본관 지하 1층 핵의학과 맞은 편 고객상담팀
-                    <br><span style="font-weight: bold; color: #e6b001;"> 소리함 </span> 병원내'고객의 소리함'
-                    <br><span style="font-weight: bold; color: #e6b001;"> 인터넷 </span> 병원 홈페이지
-                </div>
-            </section>
-        </main>
+<div class="container">
+    <div class="security-notice" id="notice-box">
+        간호사가 환자의 기초 자료(신체상태, 과거력 등)을 조사하여 <strong>체계적인 간호 계획을 수립하고 이상징후를 조기에 발견하기 위해 </strong>작성하는 서류입니다.<br><br>
+                        🔒 <strong>안심하세요!</strong><br>
+        입력하신 정보는 병원 서버에 <strong>절대 저장되지 않으며</strong>, 화면에만 잠시 표시됩니다. 작성을 마치신 후 화면을 간호사에게 보여주시기 바랍니다.
+        <br><br><strong style="color: #ff4242;">★현재 화면을 벗어나면 작성하신 모든 정보가 삭제됩니다.</strong>
     </div>
 
-    <footer>
-        &copy; 2026. JBUH-EICU. 26412<br>
-        본 페이지는 환자 및 보호자의 편의를 위해 제작되었습니다.<br>
-        문의 사항은 26412@JBUH.com으로 메일 부탁드립니다.
-    </footer>
+    <div id="form-area">
+        
+        <div class="step-container active" id="step1">
+            <div class="step-title">1. 환자분의 대략적인 키와 몸무게를 알려주세요.</div>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">(약물 용량 및 의료기기 계산을 위해 꼭 필요합니다.)</p>
+            <div class="input-group">
+                <input type="number" id="pt_height" placeholder="키 (cm)">
+                <input type="number" id="pt_weight" placeholder="몸무게 (kg)">
+            </div>
+            <div class="error-msg" id="err1">키와 몸무게를 입력해 주세요.</div>
+            <button class="next-btn" onclick="goNext(1, 2)">확인</button>
+        </div>
+
+        <div class="step-container" id="step2">
+            <div class="step-title">2. 주 보호자(1순위)의 정보를 입력해 주세요.</div>
+            <input type="text" id="cg1_name" placeholder="보호자 성함 (예: 홍길동)">
+            <input type="text" id="cg1_rel" placeholder="환자와의 관계 (예: 아들, 배우자)">
+            <input type="tel" id="cg1_phone" placeholder="연락처 (예: 010-1234-5678)">
+            <div class="error-msg" id="err2">모든 칸을 입력해 주세요.</div>
+            <button class="next-btn" onclick="goNext(2, 3)">확인</button>
+        </div>
+
+        <div class="step-container" id="step3">
+            <div class="step-title">3. 2차 보호자(비상연락망) 정보를 입력해 주세요.</div>
+            <div class="check-group">
+                <label style="background-color: #ffeaea; border-color: #ffcccc;">
+                    <input type="checkbox" id="cg2_none" onchange="toggleCg2(this)"> <strong>2차 보호자 없음 (생략하기)</strong>
+                </label>
+            </div>
+            <div id="cg2_inputs">
+                <input type="text" id="cg2_name" placeholder="보호자 성함">
+                <input type="text" id="cg2_rel" placeholder="환자와의 관계">
+                <input type="tel" id="cg2_phone" placeholder="연락처">
+            </div>
+            <div class="error-msg" id="err3">정보를 입력하거나 '없음'을 체크해 주세요.</div>
+            <button class="next-btn" onclick="goNext(3, 4)">확인</button>
+        </div>
+
+        <div class="step-container" id="step4">
+            <div class="step-title">4. 병원 오시기 전, 환자분은 어디에 계셨나요?</div>
+            <div class="check-group">
+                <label><input type="radio" name="residence" value="자택"> 자택</label>
+                <label><input type="radio" name="residence" value="요양병원/요양원"> 요양병원 / 요양원 등 타기관</label>
+            </div>
+            <div class="error-msg" id="err4">항목을 선택해 주세요.</div>
+            <button class="next-btn" onclick="goNext(4, 5)">확인</button>
+        </div>
+
+        <div class="step-container" id="step5">
+            <div class="step-title">5. 특정 약물이나 음식(조영제 등)에 알레르기가 있나요?</div>
+            <div class="check-group">
+                <label><input type="radio" name="allergy" value="없음" onclick="document.getElementById('alg_detail').style.display='none'"> 아니오 / 없습니다.</label>
+                <label><input type="radio" name="allergy" value="있음" onclick="document.getElementById('alg_detail').style.display='block'"> 예 (있습니다)</label>
+            </div>
+            <input type="text" id="alg_detail" placeholder="알레르기 원인 물질을 적어주세요." style="display: none; margin-top: 5px;">
+            <div class="error-msg" id="err5">항목을 선택해 주세요.</div>
+            <button class="next-btn" onclick="goNext(5, 6)">확인</button>
+        </div>
+
+        <div class="step-container" id="step6">
+            <div class="step-title">6. 종교적인 이유 등으로 거부하는 의료행위(예: 수혈)가 있나요?</div>
+            <div class="check-group">
+                <label><input type="radio" name="religion" value="없음" onclick="document.getElementById('rel_detail').style.display='none'"> 없습니다.</label>
+                <label><input type="radio" name="religion" value="있음" onclick="document.getElementById('rel_detail').style.display='block'"> 예 (수혈 거부 등)</label>
+            </div>
+            <input type="text" id="rel_detail" placeholder="거부하는 의료행위나 사유를 적어주세요." style="display: none; margin-top: 5px;">
+            <div class="error-msg" id="err6">항목을 선택해 주세요.</div>
+            <button class="next-btn" onclick="goNext(6, 7)">확인</button>
+        </div>
+
+        <div class="step-container" id="step7">
+            <div class="step-title">7. 환자분의 흡연 여부를 선택해 주세요.</div>
+            <div class="check-group">
+                <label><input type="radio" name="smoke" value="비흡연" onchange="toggleSmoke(this)"> 전혀 피우지 않음 (비흡연)</label>
+                <label><input type="radio" name="smoke" value="과거 흡연" onchange="toggleSmoke(this)"> 과거에 피웠으나 현재는 끊음</label>
+                <label><input type="radio" name="smoke" value="현재 흡연" onchange="toggleSmoke(this)"> 현재 흡연 중</label>
+            </div>
+            
+            <div id="smoke_details" style="display:none; margin-top: 10px; background:#f0f4f8; padding:15px; border-radius:8px;">
+                <p style="font-size:0.9rem; margin-bottom:10px; font-weight:bold; color:#0055a5;">상세 흡연 정보를 입력해 주세요.</p>
+                <div class="input-group">
+                    <input type="text" id="smoke_amount" placeholder="하루 흡연량 (예: 1갑)">
+                    <input type="text" id="smoke_years" placeholder="흡연 기간 (예: 20년)">
+                </div>
+            </div>
+            <div class="error-msg" id="err7">항목을 선택해 주세요.</div>
+            <button class="next-btn" onclick="goNext(7, 8)">확인</button>
+        </div>
+
+        <div class="step-container" id="step8">
+            <div class="step-title">8. 환자분의 음주 여부를 선택해 주세요.</div>
+            <div class="check-group">
+                <label><input type="radio" name="alcohol" value="비음주" onchange="toggleAlc(this)"> 전혀 마시지 않음 (비음주)</label>
+                <label><input type="radio" name="alcohol" value="과거 음주" onchange="toggleAlc(this)"> 과거엔 마셨으나 현재는 금주</label>
+                <label><input type="radio" name="alcohol" value="현재 음주" onchange="toggleAlc(this)"> 현재 음주 중</label>
+            </div>
+            
+            <div id="alc_details" style="display:none; margin-top: 10px; background:#f0f4f8; padding:15px; border-radius:8px;">
+                <p style="font-size:0.9rem; margin-bottom:10px; font-weight:bold; color:#0055a5;">상세 음주 정보를 입력해 주세요.</p>
+                <input type="text" id="alc_type" placeholder="주로 드시는 주종 (예: 소주, 맥주)">
+                <div class="input-group" style="margin-top:10px;">
+                    <input type="text" id="alc_amount" placeholder="1회 음주량 (예: 1병)">
+                    <input type="text" id="alc_freq" placeholder="음주 주기 (예: 주 3회)">
+                </div>
+                <input type="text" id="alc_years" placeholder="음주 기간 (예: 20년)">
+            </div>
+            <div class="error-msg" id="err8">항목을 선택해 주세요.</div>
+            <button class="next-btn" onclick="goNext(8, 9)">확인</button>
+        </div>
+
+        <div class="step-container" id="step9">
+            <div class="step-title">9. 직계 가족분들 중 앓고 계신 질환(가족력)이 있나요?</div>
+            <div class="check-group" id="chk_family">
+                <label><input type="checkbox" value="고혈압"> 고혈압</label>
+                <label><input type="checkbox" value="당뇨"> 당뇨</label>
+                <label><input type="checkbox" value="암"> 암</label>
+                <label><input type="checkbox" value="없음/모름" onchange="toggleFamilyNone(this)"> 없음 / 잘 모름</label>
+            </div>
+            <input type="text" id="family_other" placeholder="기타 다른 질환이 있다면 적어주세요." style="margin-top: 5px;">
+            <div class="error-msg" id="err9">항목을 하나 이상 체크해 주세요.</div>
+            <button class="next-btn" onclick="goNext(9, 10)">확인</button>
+        </div>
+
+        <div class="step-container" id="step10">
+            <div class="step-title">10. 환자분이 사용하시는 물품을 모두 체크해 주세요.</div>
+            <div class="check-group" id="chk_items">
+                
+                <div class="item-row">
+                    <label class="item-main">
+                        <input type="checkbox" value="틀니" id="item_denture" onchange="handleMainChange('item_denture', 'wear_denture')"> 틀니
+                    </label>
+                    <label class="item-sub">
+                        <input type="checkbox" id="wear_denture" onchange="handleSubChange('item_denture', 'wear_denture')"> 현재 착용 중
+                    </label>
+                </div>
+
+                <div class="item-row">
+                    <label class="item-main">
+                        <input type="checkbox" value="안경" id="item_glass" onchange="handleMainChange('item_glass', 'wear_glass')"> 안경
+                    </label>
+                    <label class="item-sub">
+                        <input type="checkbox" id="wear_glass" onchange="handleSubChange('item_glass', 'wear_glass')"> 현재 착용 중
+                    </label>
+                </div>
+
+                <div class="item-row">
+                    <label class="item-main">
+                        <input type="checkbox" value="보청기" id="item_hearing" onchange="handleMainChange('item_hearing', 'wear_hearing')"> 보청기
+                    </label>
+                    <label class="item-sub">
+                        <input type="checkbox" id="wear_hearing" onchange="handleSubChange('item_hearing', 'wear_hearing')"> 현재 착용 중
+                    </label>
+                </div>
+
+                <label style="background-color: #ffeaea; width: 100%; margin-top: 10px;">
+                    <input type="checkbox" id="item_none" onchange="toggleItemNone(this)"> <strong>해당 없음 (보조기 사용하지 않음)</strong>
+                </label>
+            </div>
+            <div class="error-msg" id="err10">항목을 체크해 주세요.</div>
+            
+            <button class="next-btn" style="background-color: #c0392b; margin-top: 15px;" onclick="generateResult()">입력 완료 및 캡처화면 보기</button>
+        </div>
+
+    </div>
+    <div id="result-screen">
+        <h2>📸 이 화면을 캡처해서<br>간호사에게 보여주세요</h2>
+        
+        <div class="result-item"><span class="label">1. 키 / 체중</span><span class="val" id="res_hw"></span></div>
+        <div class="result-item"><span class="label">2. 주 보호자</span><span class="val" id="res_cg1"></span></div>
+        <div class="result-item"><span class="label">3. 2차 보호자</span><span class="val" id="res_cg2"></span></div>
+        <div class="result-item"><span class="label">4. 입실 전 거주상태</span><span class="val" id="res_residence"></span></div>
+        <div class="result-item"><span class="label">5. 알레르기</span><span class="val" id="res_alg" style="color:#c0392b;"></span></div>
+        <div class="result-item"><span class="label">6. 종교적 거부(수혈 등)</span><span class="val" id="res_rel" style="color:#c0392b;"></span></div>
+        <div class="result-item"><span class="label">7. 흡연력</span><span class="val" id="res_smoke"></span></div>
+        <div class="result-item"><span class="label">8. 음주력</span><span class="val" id="res_alc"></span></div>
+        <div class="result-item"><span class="label">9. 가족력</span><span class="val" id="res_family"></span></div>
+        <div class="result-item"><span class="label">10. 소지품 / 착용여부</span><span class="val" id="res_items" style="color:#0055a5;"></span></div>
+        
+        <p style="text-align: center; font-size: 0.9rem; color: #666; margin-top: 20px; font-weight:bold;">본 화면의 정보는 저장되지 않습니다. <br><strong style="color: #ff4242;">★현재 화면을 벗어나거나 새로고침 시 작성하신 모든 정보가 삭제됩니다.</strong></p>
+        <button class="next-btn" style="background-color: #666; margin-top: 15px; width: 100%;" onclick="location.reload()">처음부터 다시 쓰기</button>
+    </div>
+
+</div>
+
+<script>
+    function toggleCg2(obj) {
+        const inputs = document.getElementById('cg2_inputs');
+        if(obj.checked) {
+            inputs.style.opacity = '0.3';
+            inputs.style.pointerEvents = 'none';
+        } else {
+            inputs.style.opacity = '1';
+            inputs.style.pointerEvents = 'auto';
+        }
+    }
+
+    function toggleFamilyNone(obj) {
+        const checkboxes = document.querySelectorAll('#chk_family input[type="checkbox"]');
+        if(obj.checked) {
+            checkboxes.forEach(cb => { if(cb !== obj) cb.checked = false; });
+        }
+    }
+
+    // 소지품 제어 로직
+    function uncheckNone() { document.getElementById('item_none').checked = false; }
+    
+    function toggleItemNone(obj) {
+        if(obj.checked) {
+            ['item_denture', 'wear_denture', 'item_glass', 'wear_glass', 'item_hearing', 'wear_hearing'].forEach(id => {
+                document.getElementById(id).checked = false;
+            });
+        }
+    }
+
+    // 메인 체크박스 해제 시 하위 체크박스도 연동 해제
+    function handleMainChange(mainId, subId) {
+        uncheckNone();
+        if(!document.getElementById(mainId).checked) {
+            document.getElementById(subId).checked = false;
+        }
+    }
+
+    // 하위 체크박스 선택 시 메인 체크박스 자동 선택
+    function handleSubChange(mainId, subId) {
+        uncheckNone();
+        if(document.getElementById(subId).checked) {
+            document.getElementById(mainId).checked = true;
+        }
+    }
+
+    function toggleSmoke(obj) {
+        const details = document.getElementById('smoke_details');
+        if(obj.value === '비흡연') details.style.display = 'none';
+        else details.style.display = 'block';
+    }
+
+    function toggleAlc(obj) {
+        const details = document.getElementById('alc_details');
+        if(obj.value === '비음주') details.style.display = 'none';
+        else details.style.display = 'block';
+    }
+
+    function goNext(current, next) {
+        let isValid = false;
+
+        if (current === 1) {
+            const h = document.getElementById('pt_height').value.trim();
+            const w = document.getElementById('pt_weight').value.trim();
+            isValid = (h !== '' && w !== '');
+        } 
+        else if (current === 2) {
+            const rel = document.getElementById('cg1_rel').value.trim();
+            const name = document.getElementById('cg1_name').value.trim();
+            const phone = document.getElementById('cg1_phone').value.trim();
+            isValid = (rel !== '' && name !== '' && phone !== '');
+        } 
+        else if (current === 3) {
+            if (document.getElementById('cg2_none').checked) { isValid = true; }
+            else {
+                const rel = document.getElementById('cg2_rel').value.trim();
+                const name = document.getElementById('cg2_name').value.trim();
+                const phone = document.getElementById('cg2_phone').value.trim();
+                isValid = (rel !== '' && name !== '' && phone !== '');
+            }
+        } 
+        else if (current === 4) { isValid = document.querySelector('input[name="residence"]:checked') !== null; } 
+        else if (current === 5) { isValid = document.querySelector('input[name="allergy"]:checked') !== null; } 
+        else if (current === 6) { isValid = document.querySelector('input[name="religion"]:checked') !== null; } 
+        else if (current === 7) { isValid = document.querySelector('input[name="smoke"]:checked') !== null; } 
+        else if (current === 8) { isValid = document.querySelector('input[name="alcohol"]:checked') !== null; } 
+        else if (current === 9) {
+            const checked = document.querySelectorAll('#chk_family input[type="checkbox"]:checked');
+            const other = document.getElementById('family_other').value.trim();
+            isValid = (checked.length > 0 || other !== '');
+        }
+
+        const errMsg = document.getElementById('err' + current);
+        
+        if (isValid) {
+            errMsg.style.display = 'none';
+            document.querySelector('#step' + current + ' .next-btn').style.display = 'none'; 
+            
+            const nextStep = document.getElementById('step' + next);
+            nextStep.classList.add('active'); 
+            
+            setTimeout(() => {
+                nextStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        } else {
+            errMsg.style.display = 'block';
+        }
+    }
+
+    function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    function getRadio(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : "미입력"; }
+
+    function generateResult() {
+        document.getElementById('form-area').style.display = 'none';
+        document.getElementById('notice-box').style.display = 'none';
+
+        const h = getVal('pt_height'); const w = getVal('pt_weight');
+        document.getElementById('res_hw').innerText = (h && w) ? `${h} cm / ${w} kg` : "미입력";
+
+        const rel1 = getVal('cg1_rel'); const name1 = getVal('cg1_name'); const phone1 = getVal('cg1_phone');
+        document.getElementById('res_cg1').innerText = (rel1 || name1 || phone1) ? `${rel1} | ${name1} | ${phone1}` : "미입력";
+
+        if(document.getElementById('cg2_none').checked) {
+            document.getElementById('res_cg2').innerText = "없음";
+        } else {
+            const rel2 = getVal('cg2_rel'); const name2 = getVal('cg2_name'); const phone2 = getVal('cg2_phone');
+            document.getElementById('res_cg2').innerText = (rel2 || name2 || phone2) ? `${rel2} | ${name2} | ${phone2}` : "미입력";
+        }
+
+        document.getElementById('res_residence').innerText = getRadio('residence');
+
+        const algVal = getRadio('allergy');
+        document.getElementById('res_alg').innerText = algVal === '있음' ? `있음 (${getVal('alg_detail')})` : algVal;
+
+        const relVal = getRadio('religion');
+        document.getElementById('res_rel').innerText = relVal === '있음' ? `거부항목 있음 (${getVal('rel_detail')})` : relVal;
+
+        const smokeVal = getRadio('smoke');
+        let smokeStr = smokeVal;
+        if(smokeVal === '과거 흡연' || smokeVal === '현재 흡연') {
+            const amt = getVal('smoke_amount') || '모름';
+            const yrs = getVal('smoke_years') || '모름';
+            smokeStr += `\n(하루: ${amt} / 기간: ${yrs})`;
+        }
+        document.getElementById('res_smoke').innerText = smokeStr;
+
+        const alcVal = getRadio('alcohol');
+        let alcStr = alcVal;
+        if(alcVal === '과거 음주' || alcVal === '현재 음주') {
+            const type = getVal('alc_type') || '모름';
+            const amt = getVal('alc_amount') || '모름';
+            const freq = getVal('alc_freq') || '모름';
+            const yrs = getVal('alc_years') || '모름';
+            alcStr += `\n(주종: ${type} / ${amt} / ${freq} / 기간: ${yrs})`;
+        }
+        document.getElementById('res_alc').innerText = alcStr;
+
+        let fam = [];
+        document.querySelectorAll('#chk_family input[type="checkbox"]:checked').forEach(cb => {
+            if(cb.value !== '없음/모름') fam.push(cb.value);
+        });
+        const famOther = getVal('family_other');
+        if(famOther) fam.push(famOther);
+        
+        if(document.querySelector('#chk_family input[value="없음/모름"]')?.checked) fam = ["없음/모름"];
+        document.getElementById('res_family').innerText = fam.length > 0 ? fam.join(', ') : "미입력";
+
+        let items = [];
+        if(document.getElementById('item_none').checked) items.push("해당없음");
+        else {
+            if(document.getElementById('item_denture').checked) items.push(document.getElementById('wear_denture').checked ? "틀니(착용중)" : "틀니(보관중)");
+            if(document.getElementById('item_glass').checked) items.push(document.getElementById('wear_glass').checked ? "안경(착용중)" : "안경(보관중)");
+            if(document.getElementById('item_hearing').checked) items.push(document.getElementById('wear_hearing').checked ? "보청기(착용중)" : "보청기(보관중)");
+        }
+        document.getElementById('res_items').innerText = items.length > 0 ? items.join(', ') : "미입력";
+
+        const resScreen = document.getElementById('result-screen');
+        resScreen.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
 
 </body>
-
 </html>

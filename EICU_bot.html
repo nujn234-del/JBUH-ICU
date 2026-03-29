@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EICU 보호자 안내 챗봇</title>
+    <style>
+        /* 기본 스타일 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: #f4f7f6; 
+            color: #333;
+            /* 글자 잘림 방지 */
+            word-break: keep-all; 
+            overflow-wrap: break-word;
+        }
+
+        /* 헤더 */
+        header { 
+            background: linear-gradient(90deg, #0055a5 0%, #ffffff 30%, #ffffff 70%, #0055a5 100%); 
+            padding: 15px; 
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 { color: #003366; font-size: 1.3rem; }
+
+        /* 챗봇 컨테이너 */
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            height: calc(100vh - 60px); 
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 채팅 메시지 영역 */
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9fbfd;
+        }
+
+        /* 메시지 공통 스타일 */
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* 봇(EICU) 메시지 */
+        .message.bot { align-items: flex-start; }
+        .message.bot .bubble {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-top-left-radius: 2px;
+            color: #333;
+        }
+
+        /* 사용자 메시지 */
+        .message.user { align-items: flex-end; }
+        .message.user .bubble {
+            background-color: #0055a5;
+            color: white;
+            border-top-right-radius: 2px;
+        }
+
+        /* 🔥 퀵 버튼 (가로 스크롤 적용) */
+        .quick-replies {
+            padding: 10px 15px;
+            background-color: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto; /* 옆으로 스크롤 */
+            white-space: nowrap; /* 밑으로 떨어지지 않고 한 줄로 정렬 */
+            -webkit-overflow-scrolling: touch; 
+        }
+        /* 스크롤바 숨기기 */
+        .quick-replies::-webkit-scrollbar {
+            display: none;
+        }
+        .quick-btn {
+            background-color: #e8f0fe;
+            color: #0055a5;
+            border: 1px solid #d2e3fc;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            flex-shrink: 0; /* 버튼이 찌그러지지 않게 보호 */
+            transition: all 0.2s;
+        }
+        .quick-btn:hover { background-color: #d2e3fc; }
+        .quick-btn:active { transform: scale(0.95); }
+
+        /* 하단 입력창 영역 */
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-area input:focus { border-color: #0055a5; }
+        .input-area button {
+            background-color: #0055a5;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            margin-left: 10px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .input-area button:active { transform: scale(0.95); }
+
+        /* 돌아가기 버튼 */
+        .back-nav {
+            text-align: center;
+            padding: 10px;
+            background: #eee;
+            font-size: 0.9rem;
+        }
+        .back-nav a { color: #555; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>💬 EICU 보호자 안내 챗봇</h1>
+</header>
+
+<div class="chat-container">
+    <div class="chat-box" id="chat-box">
+        <div class="message bot">
+            <div class="bubble">
+                안녕하세요. 전북대학교병원 응급중환자실(EICU) 안내 챗봇입니다.<br><br>
+                아래의 <strong>자주 묻는 질문 버튼</strong>을 옆으로 넘기며 누르시거나, 하단에 <strong>궁금하신 단어(예: 주차, 기저귀)</strong>를 입력해 주세요.
+                <br><br><strong>이 챗봇은 정해진 답변만을 할 수 있습니다. </strong> <br>상세문의는 063-250-2974로 전화 부탁드립니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-replies" id="quick-replies">
+        </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="키워드를 입력하세요 (예: 주차)" onkeypress="handleEnter(event)">
+        <button onclick="processInput()">전송</button>
+    </div>
+    
+    <div class="back-nav">
+        <a href="main.html">🔙 메인 안내문으로 돌아가기</a>
+    </div>
+</div>
+
+<script>
+    // 🔥 1. 16개의 전체 Q&A 데이터베이스
+    const faqDatabase = [
+        {
+            title: "위치안내",
+            keywords: ["위치", "중환자실", "응급센터"],
+            answer: "🚫 <strong>응급전용 중환자실 위치안내</strong><br>전북대학교병원 응급센터 1층 응급전용 중환자실 <br> 전북특별자치도 전주시 덕진구 건지로 20"
+        },
+        {
+            title: "환자 상태설명",
+            keywords: ["위치", "중환자실", "응급센터"],
+            answer: "🚫 <strong>상태 설명 안내</strong><br>간단한 상태설명은 전화(T.063-250-2974)를 통해 간호사가 수행하고 있습니다.<br><strong>의사 면담을 희망하는 경우 미리 말씀해주십시오. </strong><br> 보호자가 여러명인 경우 주 보호자 1인을 선정하여 보호자들 간 상태공유 부탁드립니다."
+        },
+        {
+            title: "면회 시간/규정",
+            keywords: ["면회", "시간", "언제", "방문"],
+            answer: "🕒 <strong>면회 시간 안내</strong><br>- 요일: 월, 수, 금<br>- 시간: 09:00 ~ 09:30<br>- 인원: 최대 2인까지 가능"
+        },
+        {
+            title: "교대 면회 가능 여부",
+            keywords: ["교대", "4명", "번갈아", "가족", "인원", "여러명"],
+            answer: "⚠️ <strong>교대 면회 금지 안내</strong><br>감염 예방을 위해 4인이 내원하여 2인씩 교대로 면회하는 것은 엄격히 금지되어 있습니다."
+        },
+        {
+            title: "면회 제한(아동/임산부)",
+            keywords: ["어린이", "아동", "애기", "임산부", "노약자", "제한", "감기"],
+            answer: "🚫 <strong>면회 제한 안내</strong><br>만 12세 미만 아동, 임산부, 노약자 및 감기 등 호흡기 질환이나 감염성 질환 우려가 있는 분은 환자의 안전을 위해 면회가 제한됩니다."
+        },
+        {
+            title: "입원 필수 준비물",
+            keywords: ["준비물", "물품", "필요한거", "가져갈거", "기저귀", "물티슈", "방수포", "까래", "빨대컵"],
+            answer: "🛍️ <strong>입원 시 필요 물품</strong><br>- 기저귀 2팩(20장), 까래(방수포) 2팩(20장)<br>- 물티슈 2팩, 비닐장갑 1팩<br>- 빨대컵(눈금이 있는 컵), 각티슈<br>- 버블 워터리스 샴푸(물 없이 쓰는 샴푸) 1개"
+        },
+        {
+            title: "준비물 파는 곳",
+            keywords: ["구매", "어디서", "사나요", "편의점", "파는곳", "의료용품점", "지하"],
+            answer: "🏪 <strong>물품 구매처 안내</strong><br>필요한 물품은 <strong>본관 지하 1층 편의점</strong> 및 <strong>의료용품점</strong>에서 구매하실 수 있습니다.<br>- 의료용품점 운영: 평일 08:00~18:00 (일요일 12:00~17:00, 토 휴무)"
+        },
+        {
+            title: "휴대폰 사용 제한",
+            keywords: ["휴대폰", "핸드폰", "스마트폰", "전화", "사용", "전자파"],
+            answer: "📱 <strong>휴대전화 사용 금지</strong><br>전자파가 생명 유지 기계의 작동에 영향을 줄 수 있으므로 중환자실 내 환자의 휴대전화 사용은 엄격히 금지되어 있습니다."
+        },
+        {
+            title: "주차 요금/할인",
+            keywords: ["주차", "주차장", "요금", "할인", "무료", "차량"],
+            answer: "🚗 <strong>주차 요금 안내</strong><br>- 환자 1명당 차량 2대까지 등록 가능하며, 1대에 한해 1일 할인이 적용됩니다.<br>- <strong>입/퇴원 및 수술 당일, 야간(19:00~07:00)은 무료</strong>입니다."
+        },
+        {
+            title: "차량 등록 방법",
+            keywords: ["등록", "정산", "어플", "앱", "사전정산"],
+            answer: "📱 <strong>차량 등록 방법</strong><br>각 건물 1층 수납 인근의 <strong>사전 무인 정산기</strong>를 이용하시거나, <strong>'전북대학교병원' 어플</strong>(로그인 > 내정보관리 > 기타정보 > 차량번호관리)을 통해 직접 등록하실 수 있습니다."
+        },
+        {
+            title: "서류/사본 발급",
+            keywords: ["서류", "진단서", "사본", "의무기록", "발급", "QR", "떼려면", "증명서"],
+            answer: "📄 <strong>서류 발급 안내</strong><br>평일(08:30~17:30)에 <strong>본관 1층 의무기록사본 발급실</strong>을 방문하시거나, 메인 안내문에 있는 <strong>QR코드</strong>를 통해 온라인으로 발급하실 수 있습니다. (신분증 지참 필수)"
+        },
+        {
+            title: "병원비 확인",
+            keywords: ["병원비", "진료비", "수납", "결제", "얼마", "원무과"],
+            answer: "💳 <strong>진료비 확인 안내</strong><br>진료비 확인은 <strong>본관 1층 원무과</strong>를 방문하시거나 전화(T. 063-250-1047)로 문의해 주시기 바랍니다."
+        },
+        {
+            title: "식당/카페 위치",
+            keywords: ["식당", "밥", "푸드코트", "카페", "커피", "스타벅스", "빵", "베이커리", "먹을곳"],
+            answer: "☕ <strong>식당 및 카페 안내</strong><br>- <strong>본관 지하 1층:</strong> 푸드코트, 빵집(브레댄코), 카페(파스쿠찌), 죽집 등<br>- <strong>본관 1층:</strong> 스타벅스<br>- <strong>호흡기센터 1층:</strong> 풍년제과, 이디야 커피 등"
+        },
+        {
+            title: "은행/ATM 위치",
+            keywords: ["은행", "현금", "ATM", "지급기", "돈", "새마을금고", "전북은행"],
+            answer: "🏦 <strong>금융시설 안내</strong><br><strong>본관 지하 1층</strong>에 전북은행, 새마을금고 영업점 및 현금지급기(ATM)가 위치해 있습니다."
+        },
+        {
+            title: "주치의 면담 신청",
+            keywords: ["면담", "주치의", "의사", "선생님", "상담", "상태", "경과", "얘기"],
+            answer: "👨‍⚕️ <strong>주치의 면담 안내</strong><br>환자분의 상태나 경과에 대한 주치의 면담은 <strong>주로 평일</strong>에 이루어집니다. 면담을 원하시는 경우 해당 구역의 <strong>담당 간호사에게 미리 신청</strong>해 주시면 일정을 조율해 드립니다."
+        },
+        {
+            title: "간병인 업체",
+            keywords: ["간병", "간병인", "사설", "업체", "구하기", "연락처", "일반병동"],
+            answer: "🤝 <strong>간병인 업체 안내</strong><br>일반 병동으로 가실 때 간병인이 필요한 경우, 병원에서 직접 연결해 드리지 않습니다. 메인 안내문에 기재된 <strong>사설 간병업체 연락처</strong>를 참고하여 보호자께서 직접 선정해 주시기 바랍니다."
+        },
+        {
+            title: "낙상/침대 안전",
+            keywords: ["낙상", "안전", "침대", "떨어질까", "바퀴", "난간"],
+            answer: "⚠️ <strong>낙상 예방 안내</strong><br>환자의 안전을 위해 침상 난간은 항상 올려진 상태를 유지하며, 침대 바퀴는 단단히 고정되어 집중 관리되고 있으니 안심하셔도 됩니다."
+        },
+        {
+            title: "불편사항/고충",
+            keywords: ["불만", "고충", "불편", "컴플레인", "개선", "상담팀", "소리함"],
+            answer: "✉️ <strong>불만 및 고충 처리</strong><br>병원 이용 중 불편하신 점은 <strong>본관 지하 1층 고객상담팀</strong>을 방문하시거나 전화(T. 063-250-2680, 2681), 또는 병원 내 '고객의 소리함'을 통해 말씀해 주시면 신속히 개선하겠습니다."
+        }
+    ];
+
+    const chatBox = document.getElementById('chat-box');
+    const quickRepliesContainer = document.getElementById('quick-replies');
+    const userInput = document.getElementById('user-input');
+
+    // 초기 퀵 버튼 생성 
+    function initQuickReplies() {
+        faqDatabase.forEach(faq => {
+            const btn = document.createElement('button');
+            btn.className = 'quick-btn';
+            btn.innerText = faq.title;
+            btn.onclick = () => {
+                appendMessage(faq.title, 'user');
+                setTimeout(() => appendMessage(faq.answer, 'bot'), 400); 
+            };
+            quickRepliesContainer.appendChild(btn);
+        });
+    }
+
+    // 메시지 추가 함수
+    function appendMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}`;
+        
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bubble';
+        bubbleDiv.innerHTML = text; 
+
+        msgDiv.appendChild(bubbleDiv);
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // 검색창 입력 처리
+    function processInput() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        appendMessage(text, 'user');
+        userInput.value = ''; 
+
+        let found = false;
+        for (let faq of faqDatabase) {
+            if (faq.keywords.some(keyword => text.includes(keyword))) {
+                setTimeout(() => appendMessage(faq.answer, 'bot'), 500);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            setTimeout(() => appendMessage("죄송합니다. 해당 키워드에 대한 정확한 안내를 찾지 못했습니다.<br>다른 단어로 검색하시거나, 급한 문의는 <strong>간호사실</strong>로 직접 문의해 주시기 바랍니다.", 'bot'), 500);
+        }
+    }
+
+    function handleEnter(event) {
+        if (event.key === 'Enter') {
+            processInput();
+        }
+    }
+
+    window.onload = initQuickReplies;
+
+</script>
+
+</body>
+</html>
